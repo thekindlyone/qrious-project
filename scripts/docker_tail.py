@@ -18,6 +18,14 @@ healthcheck_command = ["docker", "inspect", container_name, "--format='{{.State.
 stats_command = ["docker", "stats", container_name, "--no-stream", f"--format='{fmt}'"]
 
 def run_command(command):
+    """run a command using subprocess
+    
+    Args:
+        command (list): list of tokens representing shell command to run
+    
+    Returns:
+        str: Cleaned output of command
+    """
     try:
         return subprocess.check_output(command).decode().strip().strip("'")
     except:
@@ -25,6 +33,11 @@ def run_command(command):
 
 
 def get_status():
+    """collates the runtime metrics of the container with its healthcheck status and timestamp
+    
+    Returns:
+        list: list of metrics
+    """
     stats = run_command(stats_command)
     health_status = run_command(healthcheck_command)
     if not (health_status and stats):
@@ -35,6 +48,8 @@ def get_status():
     return [timestamp,time,health_status]+stats.split(delim)
 
 def main():
+    """driver code
+    """
     if not os.path.exists(output_file):
         writeheaders=True
     with open(output_file,"a") as f:

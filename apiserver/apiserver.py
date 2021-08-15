@@ -1,10 +1,3 @@
-"""Summary
-
-Attributes:
-    app (TYPE): Description
-    file_loc (str): Description
-    headers (list): Description
-"""
 from flask import Flask
 import subprocess
 from flask import request,jsonify
@@ -21,31 +14,16 @@ headers = ['timestamp', 'time', 'health', 'CPUPerc', 'MemPerc', 'MemUsage', 'Blo
 file_loc = "/logs/docker_status.log"
 
 
-def read_file():
-    """Summary
-    
-    Returns:
-        TYPE: Description
-    """
-    try:
-        with open(file_loc,"r") as f:
-            data = f.read()
-    except:
-        data = "file not found"
-    return data
-
 def fetch_metrics(start,end):
-    """Summary
+    """fetches metrics between start and end timestamp
     
     Args:
-        start (TYPE): Description
-        end (TYPE): Description
+        start (int): start unix timestamp in seconds
+        end (int): end unix timestamp in seconds
     
     Yields:
-        TYPE: Description
-    
-    Raises:
-        e: Description
+        list: list of metrics
+
     """
     try:
         with open(file_loc,"r") as f:
@@ -69,13 +47,14 @@ def fetch_metrics(start,end):
 
 
 def tail(n=100):
-    """Summary
+    """Returns last n lines of log file
     
     Args:
-        n (int, optional): Description
+        n (int, optional): number of lines to return. default 100
     
     Returns:
-        TYPE: Description
+        str: On Success returns last n lines as string
+        False: On Failure 
     """
     cmd = ['tail', '-n', f'{n}', file_loc]
     try:
@@ -87,10 +66,10 @@ def tail(n=100):
 
 @app.route("/")
 def root():
-    """Summary
+    """Root endpoint view
     
     Returns:
-        TYPE: Description
+        str: html table representing last 100 metrics max
     """
     data = tail()
     if data:
@@ -101,15 +80,15 @@ def root():
         html_table = build_table(df, 'blue_light')
         return(f"<html>{html_table}</html>")
     else:
-        return "file not found"
+        return "Not Ready",503
 
 
 @app.route("/api/metrics/period",methods=["GET"])
 def api():
-    """Summary
+    """/api/metrics/period endpoint view
     
     Returns:
-        TYPE: Description
+        json: list of dicts representing one metrics datapoint
     """
     data = request.get_json(silent=True)
     start = data.get('start')
@@ -125,10 +104,10 @@ def api():
 
 @app.route("/healthcheck")
 def healthcheck():
-    """Summary
+    """healthcheck endpoint for nginx healthchecks
     
     Returns:
-        TYPE: Description
+        Tuple: 'ok',200
     """
     return 'ok',200
 
