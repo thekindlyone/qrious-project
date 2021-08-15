@@ -1,0 +1,11 @@
+[Unit]
+Description=Project systemd service.
+
+[Service]
+Type=simple
+User=ec2-user
+WorkingDirectory=/home/ec2-user/project
+ExecStart=/bin/bash /home/ec2-user/project/scripts/run.sh
+
+[Install]
+WantedBy=multi-user.target
