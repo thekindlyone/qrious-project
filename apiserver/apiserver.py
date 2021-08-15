@@ -1,3 +1,10 @@
+"""Summary
+
+Attributes:
+    app (TYPE): Description
+    file_loc (str): Description
+    headers (list): Description
+"""
 from flask import Flask
 import subprocess
 from flask import request,jsonify
@@ -15,6 +22,11 @@ file_loc = "/logs/docker_status.log"
 
 
 def read_file():
+    """Summary
+    
+    Returns:
+        TYPE: Description
+    """
     try:
         with open(file_loc,"r") as f:
             data = f.read()
@@ -23,6 +35,18 @@ def read_file():
     return data
 
 def fetch_metrics(start,end):
+    """Summary
+    
+    Args:
+        start (TYPE): Description
+        end (TYPE): Description
+    
+    Yields:
+        TYPE: Description
+    
+    Raises:
+        e: Description
+    """
     try:
         with open(file_loc,"r") as f:
             for i,line in enumerate(f):
@@ -45,6 +69,14 @@ def fetch_metrics(start,end):
 
 
 def tail(n=100):
+    """Summary
+    
+    Args:
+        n (int, optional): Description
+    
+    Returns:
+        TYPE: Description
+    """
     cmd = ['tail', '-n', f'{n}', file_loc]
     try:
         lines =  subprocess.check_output(cmd).decode().strip("\n")
@@ -55,6 +87,11 @@ def tail(n=100):
 
 @app.route("/")
 def root():
+    """Summary
+    
+    Returns:
+        TYPE: Description
+    """
     data = tail()
     if data:
         if data.startswith('timestamp'):
@@ -69,6 +106,11 @@ def root():
 
 @app.route("/api/metrics/period",methods=["GET"])
 def api():
+    """Summary
+    
+    Returns:
+        TYPE: Description
+    """
     data = request.get_json(silent=True)
     start = data.get('start')
     end = data.get('end')
@@ -83,6 +125,11 @@ def api():
 
 @app.route("/healthcheck")
 def healthcheck():
+    """Summary
+    
+    Returns:
+        TYPE: Description
+    """
     return 'ok',200
 
 if __name__ == "__main__":
